@@ -3,8 +3,9 @@ using System.Text;
 using System.Security.Cryptography;
 using System.IO;
 using System.Diagnostics;
+using System.Windows;
 
-namespace WFE
+namespace FileConcealer
 {
     public class AESCryptoService
     {
@@ -25,7 +26,7 @@ namespace WFE
         public void FileEncrypt(string inputFile, string password)
         {
             byte[] salt = GenerateRandomSalt();
-            
+
             using FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);
 
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -44,7 +45,6 @@ namespace WFE
             fsCrypt.Write(salt, 0, salt.Length);
 
             using CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateEncryptor(), CryptoStreamMode.Write);
-
             using FileStream fsIn = new FileStream(inputFile, FileMode.Open);
 
             //1MB buffer
@@ -58,6 +58,7 @@ namespace WFE
                     cs.Write(buffer, 0, read);
                 }
             }
+
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
@@ -85,17 +86,17 @@ namespace WFE
 
             using FileStream fsOut = new FileStream(outputFile, FileMode.Create);
 
-            int read;
-            byte[] buffer = new byte[1048576];
-
             try
             {
+                int read;
+                byte[] buffer = new byte[1048576];
+
                 while ((read = cs.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     fsOut.Write(buffer, 0, read);
                 }
             }
-   
+
             catch (Exception ex)
             {
                 Debug.WriteLine("Exception: " + ex.Message);
